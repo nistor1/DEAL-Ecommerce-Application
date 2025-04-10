@@ -23,7 +23,6 @@ const ThemedApp: React.FC = () => {
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 
 root.render(
-    <React.StrictMode>
         <BrowserRouter>
             <Provider store={store}>
                 <ThemeProvider>
@@ -31,5 +30,4 @@ root.render(
                 </ThemeProvider>
             </Provider>
         </BrowserRouter>
-    </React.StrictMode>
 );

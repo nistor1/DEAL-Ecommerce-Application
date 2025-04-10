@@ -11,7 +11,6 @@ interface SnackbarContextProps {
 const SnackbarContext = createContext<SnackbarContextProps | undefined>(undefined);
 
 export const SnackbarProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
-    // Use Ant Design's hook-based API to allow notifications to re-render on theme changes.
     const [api, contextHolder] = notification.useNotification();
 
     const openNotificationWithIcon = (
