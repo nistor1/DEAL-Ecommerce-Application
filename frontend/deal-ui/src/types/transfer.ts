@@ -31,3 +31,12 @@ export interface CreateUserRequest {
     email: string;
     role: UserRole;
 }
+
+export interface ForgotPasswordRequest {
+    email: string;
+}
+
+export interface ResetPasswordRequest {
+    newPassword: string;
+    token: string;
+}
