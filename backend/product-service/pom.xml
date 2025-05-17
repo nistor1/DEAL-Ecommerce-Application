@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>org.deal</groupId>
-    <artifactId>identity-service</artifactId>
+    <artifactId>product-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>identity-service</name>
-    <description>identity-service</description>
+    <name>product-service</name>
+    <description>Product service project</description>
     <url/>
     <licenses>
         <license/>
@@ -101,31 +101,6 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- Spring Boot Starter Security (for AuthenticationManager, PasswordEncoder, etc.) -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
-        </dependency>
-
-        <!-- JWT support (e.g., jjwt) -->
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-api</artifactId>
-            <version>0.11.5</version>
-        </dependency>
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-impl</artifactId>
-            <version>0.11.5</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-jackson</artifactId>
-            <version>0.11.5</version>
-            <scope>runtime</scope>
-        </dependency>
-
         <!-- OpenApi/Swagger   -->
         <dependency>
             <groupId>org.springdoc</groupId>
@@ -139,29 +114,14 @@
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
 
-        <!-- Mail -->
+        <!-- Instancio -->
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-mail</artifactId>
+            <groupId>org.instancio</groupId>
+            <artifactId>instancio-junit</artifactId>
+            <version>5.4.1</version>
+            <scope>test</scope>
         </dependency>
-
     </dependencies>
-
-
-
-
-    <!--  TODO: leave it here for when configuring the gateway  -->
-    <!--    <dependencyManagement>-->
-    <!--        <dependencies>-->
-    <!--            <dependency>-->
-    <!--                <groupId>org.springframework.cloud</groupId>-->
-    <!--                <artifactId>spring-cloud-dependencies</artifactId>-->
-    <!--                <version>${spring-cloud.version}</version>-->
-    <!--                <type>pom</type>-->
-    <!--                <scope>import</scope>-->
-    <!--            </dependency>-->
-    <!--        </dependencies>-->
-    <!--    </dependencyManagement>-->
 
     <build>
         <plugins>
@@ -220,10 +180,10 @@
                 <version>${jacoco.version}</version>
                 <configuration>
                     <excludes>
-                        <exclude>**/IdentityServiceApplication.*</exclude>
-                        <exclude>**/JwtService.*</exclude>
+                        <exclude>**/ProductServiceApplication.*</exclude>
                         <exclude>**/config/*</exclude>
                         <exclude>**/*DTO.*</exclude>
+                        <exclude>**/*Aspect.*</exclude>
                         <exclude>**/exception/*</exclude>
                     </excludes>
                     <rules>
@@ -262,10 +222,10 @@
                         </goals>
                         <configuration>
                             <excludes>
-                                <exclude>**/IdentityServiceApplication.*</exclude>
-                                <exclude>**/JwtService.*</exclude>
+                                <exclude>**/ProductServiceApplication.*</exclude>
                                 <exclude>**/config/*</exclude>
                                 <exclude>**/*DTO.*</exclude>
+                                <exclude>**/*Aspect.*</exclude>
                                 <exclude>**/exception/*</exclude>
                             </excludes>
                             <rules>
@@ -292,7 +252,9 @@
             </plugin>
 
         </plugins>
-        <finalName>identity-service</finalName>
+        <finalName>product-service</finalName>
     </build>
 
+
 </project>
+
