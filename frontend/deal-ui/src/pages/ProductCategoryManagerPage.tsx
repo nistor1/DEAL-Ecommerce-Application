@@ -31,7 +31,7 @@ import ProductCategoryList from "../components/product-category/ProductCategoryL
 const {Title} = Typography;
 const {Content} = Layout;
 
-export default function ProductCategoryPage() {
+export default function ProductCategoryManagerPage() {
     const {token} = theme.useToken();
     const {showSuccess, showDealErrors} = useSnackbar();
     const dispatch = useDispatch();
@@ -74,7 +74,7 @@ export default function ProductCategoryPage() {
     };
 
     const handleAddCategory = async (values: CreateProductCategoryRequest): Promise<void> => {
-        await createProductCategory(values).unwrap()
+        createProductCategory(values).unwrap()
             .then(() => {
                 form.resetFields();
                 dispatch(closeAddPanel());
@@ -149,7 +149,10 @@ export default function ProductCategoryPage() {
     return (
         <Layout>
             <Navbar/>
-            <Content style={{padding: "2rem"}}>
+            <Content style={{
+                padding: "2rem", 
+                marginTop: `calc(${token.layout.headerHeight}px + 2rem)`
+            }}>
                 <Title level={2} style={{textAlign: "center", marginBottom: "2rem"}}>
                     Manage Product Categories
                 </Title>
