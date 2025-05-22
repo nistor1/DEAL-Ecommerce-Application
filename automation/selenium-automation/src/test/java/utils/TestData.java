@@ -25,4 +25,20 @@ public class TestData {
     }
     //-----------------------------------------------------------------------------------------------------------//
     //TODO Add here actual Test Data for your tests
-} 
+
+    public static class SignUp {
+        public static final String EXISTING_USERNAME = "Ristian";
+        public static final String EXISTING_EMAIL = "ristiristi@gmail.com";
+
+        public static String generateUsername() {
+            return "New_User_" + System.currentTimeMillis();
+        }
+        public static String generateEmail() {
+            return "mail." + System.currentTimeMillis() + "@gmail.com";
+        }
+        public static final String ILLEGAL_EMAIL = "wrong.mail.com";
+
+        public static final String PASSWORD = "mypass";
+        public static final String INVALID_PASSWORD = "invalid_password";
+    }
+}
