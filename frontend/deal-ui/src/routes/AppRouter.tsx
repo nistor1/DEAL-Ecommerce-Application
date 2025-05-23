@@ -3,6 +3,7 @@ import NotFoundPage from "../pages/NotFoundPage.tsx";
 import RegisterPage from "../pages/RegisterPage";
 import {HomePage} from "../pages/HomePage.tsx";
 import LoginPage from "../pages/LoginPage.tsx";
+import ProfilePage from "../pages/ProfilePage.tsx";
 import ForgotPasswordPage from "../pages/ForgotPasswordPage.tsx";
 import ResetPasswordPage from "../pages/ResetPasswordPage.tsx";
 import PrivateRoute from "./ProtectedRoute.tsx";
@@ -20,6 +21,7 @@ export const ROUTES = {
     REGISTER: "/register",
     FORGOT_PASSWORD: "/forgot-password",
     RESET_PASSWORD: "/reset-password",
+    PROFILE: "/profile/:username",
     PRODUCTS: "/products",
     PRODUCT_CATEGORIES: "/product-categories",
     ASSIGN_PRODUCT_CATEGORIES: "/assign-product-categories",
@@ -42,6 +44,7 @@ export default function AppRouter() {
             <Route path={ROUTES.PRODUCTS} element={<PrivateRoute><ProductManagerPage/></PrivateRoute>}/>
             <Route path={ROUTES.PRODUCT_DETAILS} element={<PrivateRoute><ProductDetailPage/></PrivateRoute>}/>
             <Route path={ROUTES.CART} element={<PrivateRoute><CartPage/></PrivateRoute>}/>
+            <Route path={ROUTES.PROFILE} element={<PrivateRoute><ProfilePage/></PrivateRoute>}/>
 
             <Route path={ROUTES.PRODUCT_CATEGORIES} element={<AdminRoute><ProductCategoryManagerPage/></AdminRoute>}/>
             <Route path={ROUTES.ASSIGN_PRODUCT_CATEGORIES} element={<AdminRoute><AssignCategoryPage/></AdminRoute>}/>

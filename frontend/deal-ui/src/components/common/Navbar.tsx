@@ -20,26 +20,36 @@ export const Navbar: React.FC = () => {
     const {token} = useToken();
     const authState: AuthState = useSelector(selectAuthState);
 
-    const userMenuItems = useMemo(() => [
-        {
-            key: ROUTES.HOME,
-            label: (
-                <div style={{display: 'flex', alignItems: 'center', gap: token.spacing.xs}}>
-                    <HomeOutlined style={{fontSize: token.customFontSize.md}}/>
-                    <span>Home</span>
-                </div>
-            ),
-        },
-        {
-            key: ROUTES.PRODUCTS,
-            label: (
-                <div style={{display: 'flex', alignItems: 'center', gap: token.spacing.xs}}>
-                    <ShoppingOutlined style={{fontSize: token.customFontSize.md}}/>
-                    <span>Products Manager</span>
-                </div>
-            ),
-        },
-    ], [token]);
+    const userMenuItems = useMemo(() => {
+        const allUserItems = [
+            {
+                key: ROUTES.HOME,
+                label: (
+                    <div style={{display: 'flex', alignItems: 'center', gap: token.spacing.xs}}>
+                        <HomeOutlined style={{fontSize: token.customFontSize.md}}/>
+                        <span>Home</span>
+                    </div>
+                ),
+            },
+            {
+                key: ROUTES.PRODUCTS,
+                label: (
+                    <div style={{display: 'flex', alignItems: 'center', gap: token.spacing.xs}}>
+                        <ShoppingOutlined style={{fontSize: token.customFontSize.md}}/>
+                        <span>Products Manager</span>
+                    </div>
+                ),
+                requiresSeller: true,
+            },
+        ];
+
+        return allUserItems.filter(item => {
+            if (item.requiresSeller) {
+                return authState.isSeller;
+            }
+            return true;
+        });
+    }, [token, authState.isSeller]);
 
     const adminMenuItems = useMemo(() => [
         {
@@ -91,9 +101,10 @@ export const Navbar: React.FC = () => {
                 height: token.layout.headerHeight,
                 transition: 'all 0.3s ease',
                 backdropFilter: 'blur(10px)',
+                overflow: 'visible',
             }}
         >
-            <Flex align="center" gap={token.spacing.lg}>
+            <Flex align="center" gap={token.spacing.lg} style={{ flex: '1 1 auto', overflow: 'visible' }}>
                 <Logo onClick={() => navigate(ROUTES.HOME)}/>
                 <Menu
                     mode="horizontal"
@@ -104,8 +115,9 @@ export const Navbar: React.FC = () => {
                         background: 'transparent',
                         color: token.colorText,
                         fontSize: token.customFontSize.base,
-                        minWidth: token.layout.maxWidth.sm,
                         borderBottom: 'none',
+                        flex: '1 1 auto',
+                        overflow: 'visible',
                     }}
                 />
             </Flex>
