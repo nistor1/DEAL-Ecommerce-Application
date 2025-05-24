@@ -13,7 +13,8 @@ import {
 } from 'antd';
 import { 
     LockOutlined, 
-    UserOutlined
+    UserOutlined,
+    ShoppingOutlined
 } from '@ant-design/icons';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectAuthState, updateUserProfile as updateUserProfileAction } from '../store/slices/auth-slice';
@@ -24,17 +25,19 @@ import { useSnackbar } from '../context/SnackbarContext';
 import ProfileHeader from '../components/profile/ProfileHeader';
 import ProfileForm from '../components/profile/ProfileForm';
 import ProfileInfo from '../components/profile/ProfileInfo';
+import OrderHistory from '../components/profile/OrderHistory';
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
 const { useToken } = theme;
 
 interface AuthState {
-    user: {
-        id: string;
-        username: string;
-        role: UserRole;
-    } | null;
+  user: {
+    id: string;
+    username: string;
+    role: UserRole;
+  } | null;
+    isSeller: boolean;
 }
 
 interface ProfileFormData {
@@ -51,15 +54,15 @@ interface ProfileFormData {
 }
 
 const ProfilePage: React.FC = () => {
-    const { token } = useToken();
-    const navigate = useNavigate();
-    const { username } = useParams<{ username: string }>();
-    const { user } = useSelector(selectAuthState) as AuthState;
+  const { token } = useToken();
+  const navigate = useNavigate();
+  const { username } = useParams<{ username: string }>();
+    const { user, isSeller } = useSelector(selectAuthState) as AuthState;
     const { showSuccess, showDealErrors } = useSnackbar();
     const dispatch = useDispatch();
     
-    const [activeTab, setActiveTab] = useState('basic');
-    const [isEditing, setIsEditing] = useState(false);
+  const [activeTab, setActiveTab] = useState('basic');
+  const [isEditing, setIsEditing] = useState(false);
     const [profileForm] = Form.useForm<ProfileFormData>();
     const [localProfileUpdates, setLocalProfileUpdates] = useState<Partial<ProfileFormData> | null>(null);
 
@@ -80,17 +83,17 @@ const ProfilePage: React.FC = () => {
         ...(localProfileUpdates || {})
     } : null;
 
-    // Validate user access
-    useEffect(() => {
-        if (!user) {
-            navigate('/');
-            return;
-        }
+  // Validate user access
+  useEffect(() => {
+    if (!user) {
+      navigate('/');
+      return;
+    }
 
-        if (username !== user.username) {
-            navigate('/');
-        }
-    }, [user, username, navigate]);
+    if (username !== user.username) {
+      navigate('/');
+    }
+  }, [user, username, navigate]);
 
     const handleEdit = () => {
         if (!userProfile) return;
@@ -98,9 +101,9 @@ const ProfilePage: React.FC = () => {
         // Don't allow editing for admin users
         if (userProfile.role === UserRole.ADMIN) {
             return;
-        }
+    }
         
-        setIsEditing(true);
+    setIsEditing(true);
         profileForm.setFieldsValue({
             username: userProfile.username,
             email: userProfile.email,
@@ -112,13 +115,13 @@ const ProfilePage: React.FC = () => {
             phoneNumber: userProfile.phoneNumber || '',
             profileUrl: userProfile.profileUrl || '',
             storeAddress: userProfile.storeAddress || '',
-        });
-    };
+      });
+  };
 
-    const handleCancel = () => {
-        setIsEditing(false);
+  const handleCancel = () => {
+    setIsEditing(false);
         profileForm.resetFields();
-    };
+  };
 
     const handleSave = async (values: ProfileFormData) => {
         if (!userProfile) return;
@@ -166,7 +169,7 @@ const ProfilePage: React.FC = () => {
             dispatch(updateUserProfileAction(updatedUser));
             
             showSuccess('Success', 'Profile updated successfully');
-            setIsEditing(false);
+      setIsEditing(false);
             
             // Clear local updates since they're now persisted
             setLocalProfileUpdates(null);
@@ -274,26 +277,47 @@ const ProfilePage: React.FC = () => {
         </Card>
     );
 
+    const renderOrderHistory = () => (
+        <Card style={{ 
+            borderRadius: token.borderRadiusLG, 
+            boxShadow: token.boxShadow 
+        }}>
+            <div style={{ padding: token.paddingLG }}>
+                <OrderHistory userId={userProfile.id} isSeller={isSeller} />
+            </div>
+        </Card>
+    );
+
     const tabItems = [
-        {
-            key: 'basic',
-            label: (
-                <Space>
-                    <UserOutlined />
-                    <span>Profile Information</span>
-                </Space>
-            ),
+    {
+      key: 'basic',
+      label: (
+        <Space>
+          <UserOutlined />
+          <span>Profile Information</span>
+        </Space>
+      ),
             children: renderBasicInfo()
+    },
+    {
+      key: 'security',
+      label: (
+        <Space>
+          <LockOutlined />
+          <span>Security</span>
+        </Space>
+      ),
+            children: renderSecurityTab()
         },
         {
-            key: 'security',
-            label: (
-                <Space>
-                    <LockOutlined />
-                    <span>Security</span>
-                </Space>
-            ),
-            children: renderSecurityTab()
+            key: 'order-history',
+      label: (
+        <Space>
+          <ShoppingOutlined />
+                    <span>Order History</span>
+        </Space>
+      ),
+            children: renderOrderHistory()
         }
     ];
 
@@ -312,26 +336,26 @@ const ProfilePage: React.FC = () => {
                         <Title level={2} style={{ margin: 0 }}>Profile Settings</Title>
                         <Text type="secondary" style={{ fontSize: token.fontSizeLG }}>
                             Manage your account information and preferences
-                        </Text>
-                    </div>
+              </Text>
+            </div>
                     
-                    <Tabs
-                        activeKey={activeTab}
-                        onChange={setActiveTab}
+          <Tabs
+            activeKey={activeTab}
+            onChange={setActiveTab}
                         items={tabItems}
                         size="large"
                         tabBarStyle={{
-                            background: token.colorBgContainer,
+              background: token.colorBgContainer,
                             margin: 0,
                             padding: `0 ${token.paddingLG}px`,
                             borderRadius: `${token.borderRadiusLG}px ${token.borderRadiusLG}px 0 0`,
                             borderBottom: `1px solid ${token.colorBorder}`
-                        }}
-                    />
-                </div>
-            </Content>
-        </Layout>
-    );
+            }}
+          />
+        </div>
+      </Content>
+    </Layout>
+  );
 };
 
 export default ProfilePage;

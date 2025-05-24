@@ -1,3 +1,5 @@
+import {OrderStatus} from "../utils/constants.ts";
+
 export enum UserRole
 {
     USER = "USER",
@@ -38,4 +40,17 @@ export interface Product extends BaseEntity {
     imageUrl: string;
     categories: ProductCategory[];
     sellerId: string;
+}
+
+export interface Order extends BaseEntity {
+    buyerId: string;
+    date: string;
+    status: OrderStatus;
+    items: OrderItem[];
+}
+
+export interface OrderItem extends BaseEntity {
+    orderId: string;
+    quantity: number;
+    product: Product;
 }
