@@ -1,9 +1,9 @@
-import React, {useMemo, useState} from 'react';
-import {Flex, Layout, Menu, theme, Drawer, Button} from 'antd';
+import React, {useMemo, useState, useEffect} from 'react';
+import {Flex, Layout, Menu, theme, Drawer, Button, Space} from 'antd';
 import {useLocation, useNavigate} from 'react-router-dom';
 import {useTheme} from '../../context/ThemeContext.tsx';
 import {ROUTES} from '../../routes/AppRouter.tsx';
-import {HomeOutlined, ProductOutlined, ShoppingOutlined, InfoCircleOutlined, ContactsOutlined, MenuOutlined} from '@ant-design/icons';
+import {HomeOutlined, ProductOutlined, ShoppingOutlined, InfoCircleOutlined, ContactsOutlined, MenuOutlined, CloseOutlined} from '@ant-design/icons';
 import {Logo} from './Logo.tsx';
 import {NavbarController} from './NavbarController.tsx';
 import {AuthState, selectAuthState} from "../../store/slices/auth-slice.ts";
@@ -20,6 +20,23 @@ export const Navbar: React.FC = () => {
     const {token} = useToken();
     const authState: AuthState = useSelector(selectAuthState);
     const [mobileMenuVisible, setMobileMenuVisible] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
+
+    // Handle responsive behavior
+    useEffect(() => {
+        const handleResize = () => {
+            const screenWidth = window.innerWidth;
+            setIsMobile(screenWidth < 1024);
+            // Close mobile menu if screen becomes large
+            if (screenWidth >= 1024) {
+                setMobileMenuVisible(false);
+            }
+        };
+
+        handleResize(); // Check on mount
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     const userMenuItems = useMemo(() => {
         const allUserItems = [
@@ -132,84 +149,163 @@ export const Navbar: React.FC = () => {
     return (
         <>
             <Header
+                className="navbar-header"
                 style={{
                     background: token.colorBgContainer,
-                    padding: `0 max(${token.spacing.lg}px, 5vw)`,
+                    padding: '0 16px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    boxShadow: token.shadows.light.md,
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)',
                     position: 'sticky',
                     top: 0,
                     zIndex: 1000,
-                    height: token.layout.headerHeight,
-                    transition: 'all 0.3s ease',
-                    backdropFilter: 'blur(10px)',
+                    height: '64px',
                     borderBottom: `1px solid ${token.colorBorder}`,
+                    backdropFilter: 'blur(8px)',
                 }}
             >
-                <Flex align="center" gap={token.spacing.lg} style={{ flex: '1 1 auto', minWidth: 0 }}>
+                <Flex align="center" gap="16px" style={{ flex: 1, minWidth: 0 }}>
+                    {isMobile && (
+                        <Button
+                            type="text"
+                            icon={<MenuOutlined />}
+                            onClick={toggleMobileMenu}
+                            className="mobile-menu-trigger"
+                            style={{
+                                fontSize: '18px',
+                                width: '40px',
+                                height: '40px',
+                                borderRadius: '8px',
+                                color: token.colorText,
+                                transition: 'all 0.2s ease',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }}
+                            aria-label="Open navigation menu"
+                        />
+                    )}
+                    
                     <Logo onClick={() => navigate(ROUTES.HOME)}/>
                     
-                    {/* Desktop Menu */}
+                    {!isMobile && (
+                        <Menu
+                            mode="horizontal"
+                            selectedKeys={[location.pathname]}
+                            items={currentMenuItems}
+                            onClick={handleMenuClick}
+                            style={{
+                                background: 'transparent',
+                                border: 'none',
+                                flex: 1,
+                                minWidth: 0,
+                            }}
+                            className="desktop-menu"
+                        />
+                    )}
+                </Flex>
+
+                <div style={{ flexShrink: 0 }}>
+                    <NavbarController
+                        onThemeChange={toggleTheme}
+                        onNavigate={navigate}
+                    />
+                </div>
+            </Header>
+
+            <Drawer
+                title={
+                    <Space align="center" style={{ width: '100%', justifyContent: 'space-between' }}>
+                        <Space align="center">
+                            <MenuOutlined style={{ color: token.colorPrimary }} />
+                            <span style={{ 
+                                color: token.colorText, 
+                                fontSize: '16px', 
+                                fontWeight: 600 
+                            }}>
+                                Navigation
+                            </span>
+                        </Space>
+                        <Button
+                            type="text"
+                            icon={<CloseOutlined />}
+                            onClick={() => setMobileMenuVisible(false)}
+                            style={{
+                                color: token.colorTextSecondary,
+                                fontSize: '14px',
+                                width: '32px',
+                                height: '32px',
+                            }}
+                            aria-label="Close navigation menu"
+                        />
+                    </Space>
+                }
+                placement="left"
+                closable={false}
+                onClose={() => setMobileMenuVisible(false)}
+                open={mobileMenuVisible}
+                bodyStyle={{ 
+                    padding: 0,
+                    background: token.colorBgContainer
+                }}
+                headerStyle={{ 
+                    borderBottom: `1px solid ${token.colorBorder}`,
+                    background: token.colorBgContainer,
+                    padding: '16px 24px',
+                }}
+                width={Math.min(320, window.innerWidth * 0.85)}
+                maskStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}
+                destroyOnClose={false}
+                forceRender={true}
+            >
+                <div style={{ 
+                    padding: '24px 0',
+                    minHeight: 'calc(100vh - 80px)',
+                    display: 'flex',
+                    flexDirection: 'column'
+                }}>
                     <Menu
-                        mode="horizontal"
+                        mode="vertical"
                         selectedKeys={[location.pathname]}
                         items={currentMenuItems}
                         onClick={handleMenuClick}
                         style={{
                             background: 'transparent',
-                            color: token.colorText,
-                            fontSize: token.customFontSize.base,
-                            borderBottom: 'none',
-                            flex: '1 1 auto',
-                            justifyContent: 'flex-start',
-                            minWidth: 0,
+                            border: 'none',
+                            fontSize: '15px',
+                            flex: 1,
                         }}
-                        className="desktop-menu"
+                        inlineIndent={24}
                     />
                     
-                    {/* Mobile Menu Trigger */}
-                    <Button
-                        type="text"
-                        icon={<MenuOutlined />}
-                        onClick={toggleMobileMenu}
-                        className="mobile-menu-trigger"
-                        style={{
-                            fontSize: '18px',
-                            padding: '4px 8px',
-                            height: 'auto',
-                            display: 'none',
-                        }}
-                    />
-                </Flex>
-
-                <NavbarController
-                    onThemeChange={toggleTheme}
-                    onNavigate={navigate}
-                />
-            </Header>
-
-            {/* Mobile Drawer Menu */}
-            <Drawer
-                title="Menu"
-                placement="left"
-                closable={true}
-                onClose={() => setMobileMenuVisible(false)}
-                open={mobileMenuVisible}
-                bodyStyle={{ padding: 0 }}
-                headerStyle={{ borderBottom: `1px solid ${token.colorBorder}` }}
-            >
-                <Menu
-                    mode="vertical"
-                    selectedKeys={[location.pathname]}
-                    items={currentMenuItems}
-                    onClick={handleMenuClick}
-                    style={{
-                        background: 'transparent',
-                        border: 'none',
-                    }}
-                />
+                    <div style={{
+                        padding: '24px',
+                        borderTop: `1px solid ${token.colorBorder}`,
+                        background: token.colorFillQuaternary,
+                        borderRadius: '12px',
+                        margin: '16px',
+                    }}>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            marginBottom: '16px'
+                        }}>
+                            <span style={{ 
+                                color: token.colorText, 
+                                fontSize: '14px',
+                                fontWeight: 500
+                            }}>
+                                Appearance
+                            </span>
+                        </div>
+                        <NavbarController
+                            onThemeChange={toggleTheme}
+                            onNavigate={navigate}
+                        />
+                    </div>
+                </div>
             </Drawer>
         </>
     );

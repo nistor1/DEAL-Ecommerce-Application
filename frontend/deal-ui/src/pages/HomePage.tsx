@@ -1,6 +1,5 @@
 import React, {useMemo, useState} from 'react';
 import {Alert, Card, Col, Divider, Empty, Row, Skeleton, Space, theme, Typography} from 'antd';
-import {AppstoreOutlined, UserOutlined} from '@ant-design/icons';
 import {useSelector} from 'react-redux';
 import ProductGrid from '../components/product/ProductGrid';
 import {SearchFilters} from '../components/common';
@@ -16,7 +15,7 @@ import UserDetailsModal from '../components/admin/UserDetailsModal';
 import UserCard from "../components/admin/UserCard.tsx";
 
 const {useToken} = theme;
-const {Title, Text, Paragraph} = Typography;
+const {Text} = Typography;
 
 type SortOption = 'name-asc' | 'name-desc' | 'price-low' | 'price-high';
 
