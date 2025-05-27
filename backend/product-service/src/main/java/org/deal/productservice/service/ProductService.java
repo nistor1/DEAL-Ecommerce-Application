@@ -1,26 +1,23 @@
 package org.deal.productservice.service;
 
-import jakarta.persistence.criteria.Path;
 import lombok.RequiredArgsConstructor;
 import org.deal.core.dto.ProductDTO;
 import org.deal.core.request.product.CreateProductRequest;
 import org.deal.core.request.product.ProductsFilter;
 import org.deal.core.request.product.UpdateProductRequest;
-import org.deal.core.response.PaginationDetails;
 import org.deal.core.response.product.ProductDetailsResponse;
 import org.deal.core.util.Mapper;
-import org.deal.core.util.SortDir;
 import org.deal.productservice.entity.Product;
 import org.deal.productservice.entity.ProductCategory;
 import org.deal.productservice.repository.ProductCategoryRepository;
 import org.deal.productservice.repository.ProductRepository;
 import org.deal.productservice.security.DealContext;
+import org.deal.productservice.util.PaginationUtils;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
@@ -34,6 +31,7 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final ProductCategoryRepository productCategoryRepository;
+    private final ProductSyncService productSyncService;
     private final DealContext dealContext;
 
     public Optional<ProductDTO> findById(final UUID id) {
@@ -49,24 +47,10 @@ public class ProductService {
     }
 
     public Page<ProductDTO> findAll(final ProductsFilter filter) {
-        String sortProperty = Optional.ofNullable(filter.property()).orElse(Product.DEFAULT_SORTING_PROPERTY);
-        SortDir sortDir = Optional.ofNullable(filter.sort()).orElse(SortDir.ASC);
-        int page = Optional.ofNullable(filter.page()).orElse(PaginationDetails.DEFAULT_PAGE);
-        int size = Optional.ofNullable(filter.size()).orElse(PaginationDetails.DEFAULT_PAGE_SIZE);
-        String searchValue = Optional.ofNullable(filter.search()).orElse("");
+        final Specification<Product> specification = PaginationUtils.buildSpecification(filter);
+        final Pageable pageable = PaginationUtils.buildPageableRequest(filter);
 
-        Sort sort = Sort.by(Sort.Direction.fromString(sortDir.name()), sortProperty);
-        Pageable pageable = PageRequest.of(page, size, sort);
-
-        Specification<Product> spec = (root, query, cb) -> {
-            if (!searchValue.isBlank()) {
-                Path<String> path = root.get(sortProperty);
-                return cb.like(cb.lower(path), "%" + searchValue.toLowerCase() + "%");
-            }
-            return cb.conjunction();
-        };
-
-        return productRepository.findAll(spec, pageable).map(this::mapToDTO);
+        return productRepository.findAll(specification, pageable).map(this::mapToDTO);
     }
 
     public Optional<ProductDetailsResponse> findDetailsById(final UUID id) {
@@ -91,7 +75,7 @@ public class ProductService {
     }
 
     public Optional<ProductDTO> create(final CreateProductRequest request) {
-        var product = productRepository.save(
+        final Product product = productRepository.save(
                 Product.builder()
                         .withTitle(request.title())
                         .withDescription(request.description())
@@ -103,29 +87,34 @@ public class ProductService {
                         .build()
         );
 
+        productSyncService.syncCreate(product);
         return Optional.of(mapToDTO(product));
     }
 
     public Optional<ProductDTO> update(final UpdateProductRequest request) {
         return productRepository.findById(request.getId())
-                .map(user -> {
+                .map(product -> {
                     if (Objects.nonNull(request.getCategories())) {
                         Set<ProductCategory> newCategories = productCategoryRepository.findAllByName(request.getCategories());
                         request.setCategories(null);
-                        user.setCategories(newCategories);
+                        product.setCategories(newCategories);
+                        productSyncService.syncUpdate(product);
                     }
 
-                    Mapper.updateValues(user, request);
-                    productRepository.save(user);
-
-                    return mapToDTO(user);
+                    Mapper.updateValues(product, request);
+                    final Product updatedProduct = productRepository.save(product);
+                    return mapToDTO(updatedProduct);
                 });
     }
 
+    @Transactional
     public Optional<ProductDTO> deleteById(final UUID id) {
         return productRepository.findById(id)
                 .filter(__ -> productRepository.deleteByIdReturning(id) != 0)
-                .map(this::mapToDTO);
+                .map(product -> {
+                    productSyncService.syncDelete(id);
+                    return mapToDTO(product);
+                });
     }
 
     private ProductDTO mapToDTO(final Product product) {

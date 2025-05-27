@@ -61,10 +61,10 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jdbc</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.boot</groupId>-->
+<!--            <artifactId>spring-boot-starter-data-jdbc</artifactId>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -129,12 +129,12 @@
             <version>29.1.0</version>
         </dependency>
 
-<!--        &lt;!&ndash; State Machine &ndash;&gt;-->
-<!--        <dependency>-->
-<!--            <groupId>org.springframework.statemachine</groupId>-->
-<!--            <artifactId>spring-statemachine-core</artifactId>-->
-<!--            <version>4.0.0</version>-->
-<!--        </dependency>-->
+        <!-- Neo4j -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-neo4j</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -195,6 +195,7 @@
                 <configuration>
                     <excludes>
                         <exclude>**/ProductServiceApplication.*</exclude>
+                        <exclude>**/DealContext.*</exclude>
                         <exclude>**/config/*</exclude>
                         <exclude>**/*DTO.*</exclude>
                         <exclude>**/*Aspect.*</exclude>
@@ -237,6 +238,7 @@
                         <configuration>
                             <excludes>
                                 <exclude>**/ProductServiceApplication.*</exclude>
+                                <exclude>**/DealContext.*</exclude>
                                 <exclude>**/config/*</exclude>
                                 <exclude>**/*DTO.*</exclude>
                                 <exclude>**/*Aspect.*</exclude>
